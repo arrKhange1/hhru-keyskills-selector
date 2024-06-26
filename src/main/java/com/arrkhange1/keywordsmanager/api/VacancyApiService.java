@@ -11,6 +11,7 @@ import org.springframework.web.client.RestClient;
 @Service
 public class VacancyApiService {
     private final String baseUrl = "https://api.hh.ru/vacancies";
+    private final Integer NUMBER_OF_VACANCIES = 100;
 
     @Autowired
     ClientHttpRequestInterceptor requestInterceptor;
@@ -25,17 +26,29 @@ public class VacancyApiService {
                 .build();
     }
 
-    public Vacancies getVacancies(String query, String searchField, Integer perPage, String orderBy, Integer page) {
-        return vacanciesRestClient.get()
-                .uri("?text={text}&search_field={search_field}&per_page={per_page}&order_by={order_by}", query, searchField, perPage, orderBy)
-                .retrieve()
-                .body(Vacancies.class);
+    public Vacancies getVacancies(String query, String searchField, String orderBy) {
+        int numberOfVacancies = NUMBER_OF_VACANCIES;
+        while(numberOfVacancies != 0) {
+            try {
+                return vacanciesRestClient.get()
+                        .uri("?text={text}&search_field={search_field}&per_page={per_page}&order_by={order_by}", query, searchField, numberOfVacancies, orderBy)
+                        .retrieve()
+                        .body(Vacancies.class);
+            } catch (RuntimeException error) {
+                numberOfVacancies = numberOfVacancies / 2;
+            }
+        }
+        throw new RuntimeException("Can't get vacancies at the current moment");
     }
 
     public Vacancy getVacancy(String vacancyId) {
-        return vacanciesRestClient.get()
-                .uri("/{vacancy_id}", vacancyId)
-                .retrieve()
-                .body(Vacancy.class);
+        try {
+            return vacanciesRestClient.get()
+                    .uri("/{vacancy_id}", vacancyId)
+                    .retrieve()
+                    .body(Vacancy.class);
+        } catch(RuntimeException error) {
+            return null;
+        }
     }
 }

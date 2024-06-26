@@ -54,18 +54,21 @@ public class SimpleAlgorithmService implements AlgorithmService {
     }
 
     private void fillKeySkillsCounter(String jobRequest) {
-        Vacancies vacanciesFromZeroPage = vacancyApiService.getVacancies(jobRequest, "name", 20, "relevance", 0);
+        Vacancies vacanciesFromZeroPage = vacancyApiService.getVacancies(jobRequest, "name", "relevance");
+
         vacancies.addAll(vacanciesFromZeroPage.items());
 
         vacancies.forEach(vacanciesItem -> {
             Vacancy vacancy = vacancyApiService.getVacancy(vacanciesItem.id());
-            vacancy.key_skills().forEach(keyword -> {
-                if (keySkillsCounter.containsKey(keyword.name())) {
-                    keySkillsCounter.replace(keyword.name(), keySkillsCounter.get(keyword.name()) + 1);
-                } else {
-                    keySkillsCounter.put(keyword.name(), 1);
-                }
-            });
+            if (vacancy != null) {
+                vacancy.key_skills().forEach(keyword -> {
+                    if (keySkillsCounter.containsKey(keyword.name())) {
+                        keySkillsCounter.replace(keyword.name(), keySkillsCounter.get(keyword.name()) + 1);
+                    } else {
+                        keySkillsCounter.put(keyword.name(), 1);
+                    }
+                });
+            }
         });
     }
 
@@ -76,6 +79,8 @@ public class SimpleAlgorithmService implements AlgorithmService {
         }
 
         fillKeySkillsCounter(jobRequest);
+
+        logger.info(keySkillsCounter.size() + "");
 
         fillPrioritizedSkills(prioritizedKeySkills, keySkillsCounter);
         var keySkills = getKeySkills(prioritizedKeySkills);
