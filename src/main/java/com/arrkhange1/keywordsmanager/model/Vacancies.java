@@ -6,5 +6,5 @@ public record Vacancies(
         List<VacanciesItem> items,
         Integer pages,
         Integer per_page
-) {
-}
+        ){
+        }

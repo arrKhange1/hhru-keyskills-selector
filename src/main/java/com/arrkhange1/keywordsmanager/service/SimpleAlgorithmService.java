@@ -23,12 +23,15 @@ public class SimpleAlgorithmService implements AlgorithmService {
 
     Map<String, Integer> keySkillsCounter = new HashMap<>();
 
-    PriorityQueue<Map.Entry<String, Integer>> prioritizedKeySkills = new PriorityQueue<>(KEY_SKILLS_AMOUNT+1, Comparator.comparingInt(Map.Entry::getValue));
+    PriorityQueue<Map.Entry<String, Integer>> prioritizedKeySkills = new PriorityQueue<>(KEY_SKILLS_AMOUNT + 1, Comparator.comparingInt(Map.Entry::getValue));
 
     List<VacanciesItem> vacancies = new ArrayList<>();
 
     @Autowired
     private VacancyApiService vacancyApiService;
+
+    @Autowired
+    private RedisJSONCacheRepository cacheJSONRepository;
 
     private void fillPrioritizedSkills(PriorityQueue<Map.Entry<String, Integer>> prioritizedKeywords, Map<String, Integer> keywordsCounter) {
         for (var entry : keywordsCounter.entrySet()) {
@@ -46,20 +49,20 @@ public class SimpleAlgorithmService implements AlgorithmService {
             logger.info(keyword.toString());
             skills.add(keyword.getKey());
         }
-        return skills.reversed();
+        Collections.reverse(skills);
+        return skills;
     }
 
     private void fillKeySkillsCounter(String jobRequest) {
-        Vacancies vacanciesFromZeroPage = vacancyApiService.getVacancies(jobRequest, "name", 100, "relevance", 0);
+        Vacancies vacanciesFromZeroPage = vacancyApiService.getVacancies(jobRequest, "name", 20, "relevance", 0);
         vacancies.addAll(vacanciesFromZeroPage.items());
 
         vacancies.forEach(vacanciesItem -> {
             Vacancy vacancy = vacancyApiService.getVacancy(vacanciesItem.id());
             vacancy.key_skills().forEach(keyword -> {
                 if (keySkillsCounter.containsKey(keyword.name())) {
-                    keySkillsCounter.replace(keyword.name(), keySkillsCounter.get(keyword.name())+1);
-                }
-                else {
+                    keySkillsCounter.replace(keyword.name(), keySkillsCounter.get(keyword.name()) + 1);
+                } else {
                     keySkillsCounter.put(keyword.name(), 1);
                 }
             });
@@ -67,15 +70,16 @@ public class SimpleAlgorithmService implements AlgorithmService {
     }
 
     public List<String> getKeywords(String jobRequest) {
-        if (!keySkillsCounter.isEmpty()) {
-            fillPrioritizedSkills(prioritizedKeySkills, keySkillsCounter);
-            return getKeySkills(prioritizedKeySkills);
+        List<String> keySkillsForJobRequest = (List<String>) cacheJSONRepository.get(jobRequest);
+        if (keySkillsForJobRequest != null) {
+            return keySkillsForJobRequest;
         }
 
         fillKeySkillsCounter(jobRequest);
 
-        logger.info(keySkillsCounter + " Кол-во ключ. слов: " + keySkillsCounter.size());
-
-        return List.of(jobRequest);
+        fillPrioritizedSkills(prioritizedKeySkills, keySkillsCounter);
+        var keySkills = getKeySkills(prioritizedKeySkills);
+        cacheJSONRepository.set(jobRequest, keySkills);
+        return keySkills;
     }
 }
