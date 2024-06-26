@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 
 @Primary
@@ -82,7 +83,7 @@ public class SimpleAlgorithmService implements AlgorithmService {
 
         fillPrioritizedSkills(prioritizedKeySkills, keySkillsCounter);
         var keySkills = getKeySkills(prioritizedKeySkills);
-        cacheJSONRepository.set(jobRequest, keySkills);
+        cacheJSONRepository.setWithExpirationTime(jobRequest, keySkills, 1, TimeUnit.DAYS);
         return keySkills;
     }
 }
