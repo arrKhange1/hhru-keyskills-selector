@@ -80,8 +80,6 @@ public class SimpleAlgorithmService implements AlgorithmService {
 
         fillKeySkillsCounter(jobRequest);
 
-        logger.info(keySkillsCounter.size() + "");
-
         fillPrioritizedSkills(prioritizedKeySkills, keySkillsCounter);
         var keySkills = getKeySkills(prioritizedKeySkills);
         cacheJSONRepository.set(jobRequest, keySkills);
