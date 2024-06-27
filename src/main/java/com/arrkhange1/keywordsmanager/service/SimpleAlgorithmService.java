@@ -60,8 +60,12 @@ public class SimpleAlgorithmService implements AlgorithmService {
         vacancies.addAll(vacanciesFromZeroPage.items());
 
         vacancies.forEach(vacanciesItem -> {
-            Vacancy vacancy = vacancyApiService.getVacancy(vacanciesItem.id());
+            Vacancy vacancy = (Vacancy) cacheJSONRepository.get(vacanciesItem.id());
+            if (vacancy == null) {
+                vacancy = vacancyApiService.getVacancy(vacanciesItem.id());
+            }
             if (vacancy != null) {
+                cacheJSONRepository.set(vacanciesItem.id(), vacancy);
                 vacancy.key_skills().forEach(keyword -> {
                     if (keySkillsCounter.containsKey(keyword.name())) {
                         keySkillsCounter.replace(keyword.name(), keySkillsCounter.get(keyword.name()) + 1);
