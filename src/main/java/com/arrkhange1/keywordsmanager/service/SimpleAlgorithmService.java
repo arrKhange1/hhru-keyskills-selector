@@ -2,8 +2,6 @@ package com.arrkhange1.keywordsmanager.service;
 
 import com.arrkhange1.keywordsmanager.api.VacancyApiService;
 import com.arrkhange1.keywordsmanager.model.Vacancies;
-import com.arrkhange1.keywordsmanager.model.VacanciesItem;
-import com.arrkhange1.keywordsmanager.model.Vacancy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,17 +20,16 @@ public class SimpleAlgorithmService implements AlgorithmService {
 
     private final Integer KEY_SKILLS_AMOUNT = 50;
 
-    Map<String, Integer> keySkillsCounter = new HashMap<>();
-
     PriorityQueue<Map.Entry<String, Integer>> prioritizedKeySkills = new PriorityQueue<>(KEY_SKILLS_AMOUNT + 1, Comparator.comparingInt(Map.Entry::getValue));
-
-    List<VacanciesItem> vacancies = new ArrayList<>();
 
     @Autowired
     private VacancyApiService vacancyApiService;
 
     @Autowired
     private RedisJSONCacheRepository cacheJSONRepository;
+
+    @Autowired
+    private KeySkillsCounterService keySkillsCounterService;
 
     private void fillPrioritizedSkills(PriorityQueue<Map.Entry<String, Integer>> prioritizedKeywords, Map<String, Integer> keywordsCounter) {
         for (var entry : keywordsCounter.entrySet()) {
@@ -54,38 +51,16 @@ public class SimpleAlgorithmService implements AlgorithmService {
         return skills;
     }
 
-    private void fillKeySkillsCounter(String jobRequest) {
-        Vacancies vacanciesFromZeroPage = vacancyApiService.getVacancies(jobRequest, "name", "relevance");
-
-        vacancies.addAll(vacanciesFromZeroPage.items());
-
-        vacancies.forEach(vacanciesItem -> {
-            Vacancy vacancy = (Vacancy) cacheJSONRepository.get(vacanciesItem.id());
-            if (vacancy == null) {
-                vacancy = vacancyApiService.getVacancy(vacanciesItem.id());
-            }
-            if (vacancy != null) {
-                cacheJSONRepository.set(vacanciesItem.id(), vacancy);
-                vacancy.key_skills().forEach(keyword -> {
-                    if (keySkillsCounter.containsKey(keyword.name())) {
-                        keySkillsCounter.replace(keyword.name(), keySkillsCounter.get(keyword.name()) + 1);
-                    } else {
-                        keySkillsCounter.put(keyword.name(), 1);
-                    }
-                });
-            }
-        });
-    }
-
     public List<String> getKeywords(String jobRequest) {
         List<String> keySkillsForJobRequest = (List<String>) cacheJSONRepository.get(jobRequest);
         if (keySkillsForJobRequest != null) {
             return keySkillsForJobRequest;
         }
 
-        fillKeySkillsCounter(jobRequest);
+        Vacancies vacanciesFromZeroPage = vacancyApiService.getVacancies(jobRequest, "name", "relevance");
+        keySkillsCounterService.fillKeySkillsCounter(vacanciesFromZeroPage.items());
 
-        fillPrioritizedSkills(prioritizedKeySkills, keySkillsCounter);
+        fillPrioritizedSkills(prioritizedKeySkills, keySkillsCounterService.getKeySkillsCounter());
         var keySkills = getKeySkills(prioritizedKeySkills);
         cacheJSONRepository.setWithExpirationTime(jobRequest, keySkills, 1, TimeUnit.DAYS);
         return keySkills;
