@@ -14,6 +14,7 @@ public class PrioritizedKeySkillsService {
     private PriorityQueue<Map.Entry<String, Integer>> fillPrioritizedSkills(Map<String, Integer> keywordsCounter) {
         PriorityQueue<Map.Entry<String, Integer>> prioritizedKeySkills =
             new PriorityQueue<>(KEY_SKILLS_AMOUNT + 1, Comparator.comparingInt(Map.Entry::getValue));
+
         for (var entry : keywordsCounter.entrySet()) {
             prioritizedKeySkills.add(entry);
             if (prioritizedKeySkills.size() > KEY_SKILLS_AMOUNT) {
@@ -23,22 +24,19 @@ public class PrioritizedKeySkillsService {
         return prioritizedKeySkills;
     }
 
-    private List<String> convertQueueToList(PriorityQueue<Map.Entry<String, Integer>> prioritizedKeySkills) {
-        List<String> skills = new ArrayList<>(KEY_SKILLS_AMOUNT);
-        while (!prioritizedKeySkills.isEmpty()) {
-            var keyword = prioritizedKeySkills.poll();
-            logger.info(keyword.toString());
-            skills.add(keyword.getKey());
-        }
-        Collections.reverse(skills);
-        return skills;
+    private List<String> mapPrioritizedKeySkillsToList(PriorityQueue<Map.Entry<String, Integer>> prioritizedKeySkills) {
+        prioritizedKeySkills.stream()
+                .sorted((entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue()))
+                .forEach(entry -> logger.info("entry: " + entry));
+        return prioritizedKeySkills.stream()
+                .sorted((entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue()))
+                .map(Map.Entry::getKey)
+                .toList();
     }
 
     public List<String> getKeySkills(Map<String, Integer> keywordsCounter) {
         PriorityQueue<Map.Entry<String, Integer>> prioritizedKeySkillsQueue
                 = fillPrioritizedSkills(keywordsCounter);
-        return convertQueueToList(prioritizedKeySkillsQueue);
+        return mapPrioritizedKeySkillsToList(prioritizedKeySkillsQueue);
     }
-
-
 }
