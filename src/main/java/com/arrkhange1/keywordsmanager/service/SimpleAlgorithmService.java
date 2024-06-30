@@ -38,7 +38,7 @@ public class SimpleAlgorithmService implements AlgorithmService {
 
         Vacancies vacanciesFromZeroPage = vacancyApiService.getVacancies(jobRequest, "name", "relevance");
         Map<String, Integer> keySkillsCounter =
-                keySkillsCounterService.fillKeySkillsCounter(vacanciesFromZeroPage.items());
+                keySkillsCounterService.getKeySkillsCounter(vacanciesFromZeroPage.items());
 
         List<String> readyKeySkills = prioritizedKeySkillsService.getKeySkills(keySkillsCounter);
         cacheJSONRepository.setWithExpirationTime(jobRequest, readyKeySkills, 1, TimeUnit.DAYS);

@@ -12,15 +12,15 @@ import java.util.Map;
 
 @Service
 public class KeySkillsCounterService {
-    private Map<String, Integer> keySkillsCounter = new HashMap<>();
-
     @Autowired
     private CacheRepository<String, Object> cacheJSONRepository;
 
     @Autowired
     private VacancyApiService vacancyApiService;
 
-    public Map<String, Integer> fillKeySkillsCounter(List<VacanciesItem> vacanciesItems) {
+    public Map<String, Integer> getKeySkillsCounter(List<VacanciesItem> vacanciesItems) {
+        Map<String, Integer> keySkillsCounter = new HashMap<>();
+
         vacanciesItems.forEach(vacanciesItem -> {
             Vacancy vacancy = (Vacancy) cacheJSONRepository.get(vacanciesItem.id());
             if (vacancy == null) {

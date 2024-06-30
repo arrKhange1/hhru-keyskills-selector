@@ -11,19 +11,19 @@ public class PrioritizedKeySkillsService {
     private static final Logger logger = LoggerFactory.getLogger(PrioritizedKeySkillsService.class);
     private final Integer KEY_SKILLS_AMOUNT = 50;
 
-    PriorityQueue<Map.Entry<String, Integer>> prioritizedKeySkills =
+    private PriorityQueue<Map.Entry<String, Integer>> fillPrioritizedSkills(Map<String, Integer> keywordsCounter) {
+        PriorityQueue<Map.Entry<String, Integer>> prioritizedKeySkills =
             new PriorityQueue<>(KEY_SKILLS_AMOUNT + 1, Comparator.comparingInt(Map.Entry::getValue));
-
-    private void fillPrioritizedSkills(Map<String, Integer> keywordsCounter) {
         for (var entry : keywordsCounter.entrySet()) {
             prioritizedKeySkills.add(entry);
             if (prioritizedKeySkills.size() > KEY_SKILLS_AMOUNT) {
                 prioritizedKeySkills.poll();
             }
         }
+        return prioritizedKeySkills;
     }
 
-    private List<String> convertQueueToList() {
+    private List<String> convertQueueToList(PriorityQueue<Map.Entry<String, Integer>> prioritizedKeySkills) {
         List<String> skills = new ArrayList<>(KEY_SKILLS_AMOUNT);
         while (!prioritizedKeySkills.isEmpty()) {
             var keyword = prioritizedKeySkills.poll();
@@ -35,8 +35,9 @@ public class PrioritizedKeySkillsService {
     }
 
     public List<String> getKeySkills(Map<String, Integer> keywordsCounter) {
-        fillPrioritizedSkills(keywordsCounter);
-        return convertQueueToList();
+        PriorityQueue<Map.Entry<String, Integer>> prioritizedKeySkillsQueue
+                = fillPrioritizedSkills(keywordsCounter);
+        return convertQueueToList(prioritizedKeySkillsQueue);
     }
 
 

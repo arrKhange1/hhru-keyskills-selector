@@ -10,8 +10,8 @@ import org.springframework.web.client.RestClient;
 
 @Service
 public class VacancyApiService {
-    private final String baseUrl = "https://api.hh.ru/vacancies";
-    private final Integer NUMBER_OF_VACANCIES = 100;
+    private final String BASE_URL = "https://api.hh.ru/vacancies";
+    private final Integer NUMBER_OF_VACANCIES = 10;
 
     @Autowired
     ClientHttpRequestInterceptor requestInterceptor;
@@ -21,7 +21,7 @@ public class VacancyApiService {
     @PostConstruct
     public void init() {
         vacanciesRestClient = RestClient.builder()
-                .baseUrl(baseUrl)
+                .baseUrl(BASE_URL)
                 .requestInterceptor(requestInterceptor)
                 .build();
     }
