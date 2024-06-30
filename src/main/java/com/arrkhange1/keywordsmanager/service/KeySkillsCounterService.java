@@ -14,17 +14,13 @@ import java.util.Map;
 public class KeySkillsCounterService {
     private Map<String, Integer> keySkillsCounter = new HashMap<>();
 
-    public Map<String, Integer> getKeySkillsCounter() {
-        return keySkillsCounter;
-    }
-
     @Autowired
     private CacheRepository<String, Object> cacheJSONRepository;
 
     @Autowired
     private VacancyApiService vacancyApiService;
 
-    public void fillKeySkillsCounter(List<VacanciesItem> vacanciesItems) {
+    public Map<String, Integer> fillKeySkillsCounter(List<VacanciesItem> vacanciesItems) {
         vacanciesItems.forEach(vacanciesItem -> {
             Vacancy vacancy = (Vacancy) cacheJSONRepository.get(vacanciesItem.id());
             if (vacancy == null) {
@@ -41,5 +37,6 @@ public class KeySkillsCounterService {
                 });
             }
         });
+        return keySkillsCounter;
     }
 }
