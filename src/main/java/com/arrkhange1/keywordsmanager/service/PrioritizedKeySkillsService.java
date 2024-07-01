@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class PrioritizedKeySkillsService {
@@ -25,13 +26,10 @@ public class PrioritizedKeySkillsService {
     }
 
     private List<String> mapPrioritizedKeySkillsToList(PriorityQueue<Map.Entry<String, Integer>> prioritizedKeySkills) {
-        prioritizedKeySkills.stream()
-                .sorted((entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue()))
-                .forEach(entry -> logger.info("entry: " + entry));
         return prioritizedKeySkills.stream()
                 .sorted((entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue()))
                 .map(Map.Entry::getKey)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     public List<String> getKeySkills(Map<String, Integer> keywordsCounter) {
