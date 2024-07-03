@@ -11,7 +11,7 @@ import org.springframework.web.client.RestClient;
 @Service
 public class VacancyApiService {
     private final String BASE_URL = "https://api.hh.ru/vacancies";
-    private final Integer NUMBER_OF_VACANCIES = 100;
+    private final Integer NUMBER_OF_VACANCIES = 10;
 
     @Autowired
     ClientHttpRequestInterceptor requestInterceptor;
