@@ -3,6 +3,7 @@ package com.arrkhange1.keywordsmanager.service;
 import com.arrkhange1.keywordsmanager.api.VacancyApiService;
 import com.arrkhange1.keywordsmanager.model.VacanciesItem;
 import com.arrkhange1.keywordsmanager.model.Vacancy;
+import com.arrkhange1.keywordsmanager.repository.CacheRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

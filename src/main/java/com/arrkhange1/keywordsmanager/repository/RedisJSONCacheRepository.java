@@ -1,4 +1,4 @@
-package com.arrkhange1.keywordsmanager.service;
+package com.arrkhange1.keywordsmanager.repository;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;

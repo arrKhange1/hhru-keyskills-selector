@@ -1,4 +1,4 @@
-package com.arrkhange1.keywordsmanager.service;
+package com.arrkhange1.keywordsmanager.repository;
 
 import java.util.concurrent.TimeUnit;
 
