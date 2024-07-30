@@ -107,3 +107,15 @@ if (vacancy != null) {
     ...
 }
 ```
+
+# Технологии
+
+## Backend
+
+* Java (Spring Boot, Spring Framework, Spring Data Redis)
+* Redis
+
+## Frontend
+
+* Postman
+* JMeter
