@@ -119,3 +119,12 @@ if (vacancy != null) {
 
 * Postman
 * JMeter
+
+# Запуск и использование
+
+## Запустить приложение
+docker-compose up --build из root директории
+
+## Использование
+Можно делать запросы на http://localhost:8080/api/keyskills?topic=... <br>
+topic - запрос для получения ключевых навыков по нему
