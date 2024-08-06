@@ -17,5 +17,6 @@ public class KeySkillsController {
     @GetMapping("")
     public List<String> getKeySkills(@RequestParam("topic") String jobRequest) {
         return algorithmExecutor.execute(jobRequest);
+//        return "OK";
     }
 }
